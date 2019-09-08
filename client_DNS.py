@@ -137,7 +137,7 @@ def List_read_in(List_in):
     print("QCLASS:" + " type class request                                               " + List_in.get("QCLASS"))
     id4 = bin(int(List_in.get("NAME"), 16))
     stpname = int(id4[4:18], 2)
-    name_lend = int(List_in.get("LIST_IN")[0 + stpname * 2:2 + stpname * 2])
+    name_lend = int(List_in.get("LIST_IN")[0 + stpname * 2:2 + stpname * 2],16)
     start_ind = 2 + stpname * 2
     stop_ind = 2 + stpname * 2 + name_lend * 2
     name = List_in.get("LIST_IN")[start_ind:stop_ind]
@@ -260,10 +260,10 @@ def List_call():
 
 
 def ip_server():
-    print('Enter DNS server: (blank to  default "8.8.8.8")')#"127.0.0.1"
+    print('Enter DNS server: (blank to  default "192.168.1.180")')#"127.0.0.1"
     ip_server = input()
     if ip_server == '':
-        ip_server = "8.8.8.8" #"127.0.0.1"
+        ip_server = "192.168.1.180" #"127.0.0.1"
     else:
         pass
     print("DNS server adress :",ip_server)
