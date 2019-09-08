@@ -269,7 +269,6 @@ def ip_server():
     return (str(ip_server))
 
 
-
 response = send_udp_message(List_call(),ip_server(),53)
 List_read_in(List_callback())
 
