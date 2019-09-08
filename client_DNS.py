@@ -198,7 +198,6 @@ def List_read_in(List_in):
 def List_call():
     # write message for request in DNS server
     #
-
     List_out_call = {}
     List_out_call["ID"] = "AAAA"  # id request
     List_out_call["QR"] = "0"  # 0-requst , 1 answer
