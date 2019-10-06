@@ -355,7 +355,6 @@ def List_call():
     List_out_call["QDCOUNT"] = "0001"  # 1-requst
     List_out_call["ANCOUNT"] = "0000"  # Code answer
     List_out_call["NSCOUNT"] = "0000"  # numba write name servis available
-    # List_out_call["ARCOUNT"] = "0000"  # numba write recurs additionally
 
     Header_1 = List_out_call.get("QR") + List_out_call.get("OPCODE") + List_out_call.get("AA") + List_out_call.get("TC") \
                + List_out_call.get("RD")
