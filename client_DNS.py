@@ -146,8 +146,7 @@ def List_callback():
 
         else:
             pass
-    else:
-        # List_in["QTYPE"]=="0110" 'SOA (6) 0110'
+    elif List_in["QTYPE"] == "0110" and List_in["NSCOUNT"] == "0001":  # 'SOA (6) 0110'
         List_in["LIST_IN"] = response
         List_in["QCLASS"] = response[(32 + z * 2):(36 + z * 2)]
         start_list = int((28 + y * 2)) + 12
@@ -159,6 +158,9 @@ def List_callback():
         List_in["RETRY"] = List_in["SOA"][-24:-16]
         List_in["EXPIRE"] = List_in["SOA"][-16:-8]
         List_in["MINIMUM"] = List_in["SOA"][-8:]
+
+    else:
+        pass
 
     List_in["LIST_IN"] = response
     return List_in
@@ -263,12 +265,12 @@ def List_read_in(List_in):
 
                         start = start + 1
                         step = step + 32
-    elif List_in["QTYPE"] == "0110":  # SOA
-
-        i = 16  # ? bit reser start# python3.5 non suport this version
+    elif List_in["QTYPE"] == "0110" and List_in["RCODE"] == "0000" and List_in["NSCOUNT"] =="0001":  # SOA
+        RNAME_out = ''
+        RNAME_out = RNAME_out + hex2str(str(List_in.get("RNAME")[0:16])).decode('utf-8')
+        i = 16
         name_rname = str(List_in.get("RNAME"))
         name_rname_global = str(List_in.get("LIST_IN"))
-        RNAME_out = ''
         while i <= len(name_rname):
             if name_rname[i:i + 2] == "c0":
 
@@ -306,7 +308,7 @@ def List_read_in(List_in):
     else:
         pass
 
-    if List_in["QTYPE"] == "0001" and List_in["ARCOUNT"] != "0000" or List_in["ARCOUNT_new"] == "0000":
+    if List_in["QTYPE"] == "0001" and List_in["ARCOUNT"] != "0000" and List_in["ARCOUNT_new"]!="0000":
 
         print("type_cover:" + "                                                  " + List_in.get("type_cover"))
         print("arlgorithm:" + "    value algorithm                               " + List_in.get("arlgorithm"))
