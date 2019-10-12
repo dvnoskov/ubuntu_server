@@ -24,15 +24,17 @@ data2 = {
         }
 
 data1 = {
-            "hostname" : 'kik03.dimon49.ml',
-            "myip"     : '192.168.1.12',
+            "hostname" : 'kik01.dynhost.ml',
+            "myip"     : '192.168.1.145',
              "wildcard": 'NOCHG',
              "mx"      : 'NOCHG',
              "backmx"  : 'NO'
         }
-
-
+#url="http://dimon49.ml/nic/status"
+#url="http://192.168.1.180/nic/status"  #
+#url="http://dimon49.ml/nic/test"
 #url="http://192.168.1.180/nic/test"  #
+#r = requests.get(url)
 #r = requests.get(url,auth=("KiK","12345KiK"))
 #url="http://192.168.1.180/nic/update"  #
 #url="http://193.254.196.206/nic/update"  #

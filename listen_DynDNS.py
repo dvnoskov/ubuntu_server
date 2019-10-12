@@ -1,6 +1,7 @@
 from threading import Thread
 from http.server import  HTTPServer
 from libs_server_DynDNS import MyTCPHandler
+#from test_libs_server_DynDNS import MyTCPHandler
 from config import port_DYN_DNS,host_DNS
 from socketserver import ThreadingMixIn
 
