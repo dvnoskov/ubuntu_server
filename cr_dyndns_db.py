@@ -68,19 +68,22 @@ class User(Base):
     user_id = Column(Integer(), primary_key=True)
     username = Column(String(15), nullable=False, unique=True)
     password = Column(String(25), nullable=False)
+    time_stop = Column(DateTime(), default=datetime.now)
     created_on = Column(DateTime(), default=datetime.now)
     updated_on = Column(DateTime(), default=datetime.now, onupdate=datetime.now)
     DynDNS = relationship("DynDNS")
 
-def __init__(self, username, password, created_on, updated_on):
+def __init__(self, username, password,time_stop, created_on, updated_on):
     self.username = username
     self.password = password
+    self.time_stop = time_stop
     self.created_on = created_on
     self.updated_on = updated_on
 
 
 def __repr__(self):
     return "User(username='{self.username}', " \
+           "time_stop='{self.time_stop}', " \
            "password='{self.password}')".format(self=self)
 
 

@@ -1,8 +1,5 @@
 import binascii
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from cr_dyndns_db import DynDNS
-from config import route_DB
 
 
 
@@ -164,15 +161,10 @@ def answer_SOA(List_db_dns_out):
     return message_db_dns_out
 
 
-def DB_DNS_in(in_message):
+def DB_DNS_in(in_message,Session):
     # distionary incoming message
     #
-    engine = create_engine(route_DB)
-    Session = sessionmaker(bind=engine)
     session = Session()
-    query = session.query(DynDNS)
-    #
-
     List_db_dns_in = {}
     List_db_dns_in["ID"] = in_message[0:4]
     id4 = ("{0:4b}".format(int(in_message[4:5], 16)) + "{0:4b}".format(int(in_message[5:6], 16)) +
@@ -234,7 +226,6 @@ def DB_DNS_in(in_message):
             qname = qname + "2e" + (List_db_dns_in.get("QNAME")[4 + l * 2:4 + (l + m) * 2])
             l = l + m + 1
 
-
     List_db_dns_out = {}
     List_db_dns_out["ID"] = List_db_dns_in["ID"]
     List_db_dns_out["QR"] = "1"  # 0-requst , 1 answer
@@ -251,7 +242,8 @@ def DB_DNS_in(in_message):
     List_db_dns_out["QTYPE"] = List_db_dns_in["QTYPE"]
     List_db_dns_out["QCLASS"] = List_db_dns_in["QCLASS"]
 
-    if List_db_dns_in["OPCODE"] == "0000" and List_db_dns_in["QDCOUNT"] == "0001" and List_db_dns_in["QCLASS"] == "0001":
+    if List_db_dns_in["OPCODE"] == "0000" and List_db_dns_in["QDCOUNT"] == "0001" and List_db_dns_in[
+        "QCLASS"] == "0001":
         requst = session.query(DynDNS).filter(DynDNS.NAME == qname).first()
         if List_db_dns_in["ARCOUNT"] == "0000":
             if List_db_dns_in["QTYPE"] == "0001":  # A format
@@ -264,23 +256,24 @@ def DB_DNS_in(in_message):
                     else:
                         pass
 
+            elif List_db_dns_in["QTYPE"] == "0110":  # SOA format
+                if requst is not None:
+                    message_db_dns_out_f = answer_SOA(List_db_dns_out)
+                else:
+                    message_db_dns_out_f = Server_failure(List_db_dns_out)
             else:
-                if List_db_dns_in["QTYPE"] == "0110":  # SOA format
-                    if requst is not None:
-                        message_db_dns_out_f = answer_SOA(List_db_dns_out)
-                    else:
-                        message_db_dns_out_f = Server_failure(List_db_dns_out)
-
+                message_db_dns_out_f = Server_failure(List_db_dns_out)
         else:
             # List_db_dns_in["ARCOUNT"] != "0000":
             #  CD+AD + records
             if requst is not None:
                 if List_db_dns_in["QTYPE"] == "0001":  # A format
-                    message_db_dns_out_f = answer_A_name_records(List_db_dns_in, requst, List_db_dns_out)  # yes A+records
+                    message_db_dns_out_f = answer_A_name_records(List_db_dns_in, requst,
+                                                                 List_db_dns_out)  # yes A+records
                 elif List_db_dns_in["QTYPE"] == "0110":  # SOA format
                     message_db_dns_out_f = answer_SOA(List_db_dns_out)
                 else:
-                    pass
+                    message_db_dns_out_f = Server_failure(List_db_dns_out)
             else:
                 message_db_dns_out_f = answer_no_name(List_db_dns_out)  # no A
 

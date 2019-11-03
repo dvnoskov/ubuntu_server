@@ -394,12 +394,15 @@ def List_call():
     List_out_call["QNAME"] = lis_name_hex
     print('Enter QTYPE: (blank to  default A (1) 0001)')
     print('SOA (6) 0110')
+    print('AAAA (28) 001C')
     name = input()
     if name == '':
         name = "0001"
         List_out_call["QTYPE"] = "0001"  # write A
     elif name == "6":
         List_out_call["QTYPE"] = "0110"
+    elif name == "28":
+        List_out_call["QTYPE"] = "001C"
     print("Name QTYPE :", name)
 
     List_out_call["QCLASS"] = "0001"  # 1 internet

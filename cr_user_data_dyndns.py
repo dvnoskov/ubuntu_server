@@ -53,9 +53,7 @@ DynDNS_add_ip = DynDNS(NAME=Qname(name_ip),
 #session.commit()
 
 #name_dyndns = "members.dyndns.org" # name update ip adres
-#name_dyndns = "kiksecurity.ml" # name update ip adres
-#name_dyndns = "dimon49.ml" # name update ip adres
-name_dyndns = "dynhost.ml" # name update ip adres
+name_dyndns = "dimon49.ml" # name update ip adres
 DynDNS_add_dyndns = DynDNS(NAME=Qname(name_dyndns),
                  USER= "DNS",
                  TYPE="0001",# default

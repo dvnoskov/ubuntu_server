@@ -56,16 +56,16 @@ class MyTCPHandler(BaseHTTPRequestHandler):
     def stop_DB(self):
         self.session.commit()
         self.session.close()
-        self._lock.release()
+     #   self._lock.release()
 
     def do_DB(self):
         engine = create_engine(route_DB)
         self.Session = sessionmaker(bind=engine)
         self.session = self.Session()
         self.Base = declarative_base()
-        self._lock = threading.Lock()
-        self._lock.acquire()
-        return self.session, self.Base, self.Session, self._lock.acquire
+     #   self._lock = threading.Lock()
+     #   self._lock.acquire()
+        return self.session, self.Base, self.Session   # self._lock.acquire
 
     def do_HEAD(self):
         self.send_header('Content-type', 'text/html')
@@ -207,8 +207,11 @@ class MyTCPHandler(BaseHTTPRequestHandler):
                     filt4 = query.filter(
                         DynDNS.USER == self.user or DynDNS.RDATA == rdata_in and DynDNS.NAME == homenam_in).first()
                     if filt4 is None:
+                        self._lock = threading.Lock()
+                        self._lock.acquire()
                         filt5 = query.filter(DynDNS.USER == self.user, DynDNS.NAME == homenam_in)
                         filt5.update({DynDNS.RDATA: rdata_in})
+                        self._lock.release()
                         self.stop_DB()
                         self.send_response(200)
                         text = "good   " + str(myip_in)

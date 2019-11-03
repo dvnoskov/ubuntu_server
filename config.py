@@ -8,6 +8,8 @@ host_DNS = '192.168.1.180'  # Standard loopback interface address (localhost)
 port_DNS = 53  # Port to listen on (non-privileged ports are > 1023)
 port_DYN_DNS = 80  # Port to listen on (non-privileged ports are > 1023)
 route_DB = 'sqlite:///DynDNS_server_DB'
+max_pool = 5 # ThreadPoolExecutor(max_workers)default =5 (sqlalchemy)
+max_queue = 10 #queue.Queue(maxsize) default = 10(sqlalchemy)
 #DNS_1 = '8.8.8.8' # dns server 1
 #DNS_2 = '8.8.1.1' # dns server 2
 #time_serwer = 2 # time answer serwer DNS cek
