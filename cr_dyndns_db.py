@@ -14,7 +14,7 @@ Base = declarative_base()
 
 
 
-
+#
 class DynDNS(Base):
     __tablename__ = 'DynDNS'
     dyndns_id = Column(Integer(), primary_key=True)
@@ -26,13 +26,13 @@ class DynDNS(Base):
     RDLENGTH = Column(String(16))
     ANCOUNT = Column(String(16))
     RDATA = Column(String(255))
-    Time = Column(String(255))
+    Time_stop = Column(String(63), default="millenium")
     created_on = Column(DateTime(), default=datetime.now)
     updated_on = Column(DateTime(), default=datetime.now, onupdate=datetime.now)
     STATUS = Column(String(63))
 
 
-def __ini__(self, dyndns_id,USER,NAME,TYPE,CLASS,TTL,RDLENGTH,ANCOUNT,RDATA,Time,created_on,updated_on,STATUS):
+def __ini__(self, dyndns_id,USER,NAME,TYPE,CLASS,TTL,RDLENGTH,ANCOUNT,RDATA,Time_stop,created_on,updated_on,STATUS):
         self.dyndns_id = dyndns_id
         self.USER = USER
         self.NAME = NAME
@@ -42,7 +42,7 @@ def __ini__(self, dyndns_id,USER,NAME,TYPE,CLASS,TTL,RDLENGTH,ANCOUNT,RDATA,Time
         self.RDLENGTH = RDLENGTH
         self.ANCOUNT=ANCOUNT
         self.RDATA = RDATA
-        self.Time = Time
+        self.Time_stop = Time_stop
         self.created_on = created_on
         self.updated_on = updated_on
         self.STATUS = STATUS
@@ -57,18 +57,18 @@ def __repr__(self):
            "RDLENGTH='{self.RDLENGTH}', " \
            "RDATA='{self.RDATA}', " \
            "ANCOUNT='{self.ANCOUNT}',"\
-           "Time='{self.Time}', " \
+           "Time_stop='{self.Time_stop}', " \
            "created_on='{self.created_on}', " \
            "STATUS='{self.STATUS}', " \
            "updated_on='{self.updated_on}')".format(self=self)
 
-
+#
 class User(Base):
     __tablename__ = 'users'
     user_id = Column(Integer(), primary_key=True)
     username = Column(String(15), nullable=False, unique=True)
     password = Column(String(25), nullable=False)
-    time_stop = Column(DateTime(), default=datetime.now)
+    time_stop = Column(String(63), default="millenium")
     created_on = Column(DateTime(), default=datetime.now)
     updated_on = Column(DateTime(), default=datetime.now, onupdate=datetime.now)
     DynDNS = relationship("DynDNS")

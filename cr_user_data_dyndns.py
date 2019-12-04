@@ -47,7 +47,7 @@ DynDNS_add_ip = DynDNS(NAME=Qname(name_ip),
                  ANCOUNT="0001",# default
                  RDLENGTH="0004",# default
                  RDATA=Ipdata(host_DNS),
-                 Time=time.time(),
+ #                Time=time.time(),
                  STATUS="DynDNS")
 #session.add(DynDNS_add_ip)
 #session.commit()
@@ -63,7 +63,7 @@ DynDNS_add_dyndns = DynDNS(NAME=Qname(name_dyndns),
                  ANCOUNT="0001",# default
                  RDLENGTH="0004",# default
                  RDATA=Ipdata(host_DNS),
-                 Time=time.time(),
+#                 Time=time.time(),
                  STATUS="DynDNS")
 #session.add(DynDNS_add_dyndns)
 #session.commit()
@@ -74,15 +74,15 @@ DynDNS_add_dyndns = DynDNS(NAME=Qname(name_dyndns),
 #-----------------------------------------
 # Add user for DynDNS
 test_user = User(username='test',
-                 password='test')
+                 password='')
 KiK_user = User(username='KiK',
-                 password='12345KiK')
+                 password='')
 admin_user = User(username='admin',
-                 password='adminKiK')
+                 password='')
 #session.add(test_user)
 #session.add(KiK_user)
 #session.add(admin_user)
-session.commit()
+#session.commit()
 
 #----------------------------------------------
 # Add name for DynDNS
@@ -111,12 +111,19 @@ for v in Name:
                  ANCOUNT="0001",# default
                  RDLENGTH="0004",# default
                  RDATA=Ipdata(myip),
-                 Time=time.time(),
+ #                Time=time.time(),
                  STATUS="USER")
-    #session.add(DynDNS_add)
-    #session.commit()
+   # session.add(DynDNS_add)
+   # session.commit()
 
+#---------------------------------------------------
+#update time_stop
+v="kik04.dynhost.ml"
 
+query = session.query(DynDNS)
+sys = query.filter(DynDNS.NAME == Qname(v))
+sys.update({DynDNS.Time_stop: time.time()+float(60*60*24*1)}) #1 day
+#session.commit()
 #---------------------------------------------------
 # can user
 """

@@ -1,5 +1,6 @@
 import binascii
 from cr_dyndns_db import DynDNS
+import time
 
 
 
@@ -241,14 +242,21 @@ def DB_DNS_in(in_message,Session):
     List_db_dns_out["QNAME"] = List_db_dns_in["QNAME"]
     List_db_dns_out["QTYPE"] = List_db_dns_in["QTYPE"]
     List_db_dns_out["QCLASS"] = List_db_dns_in["QCLASS"]
-
+#
     if List_db_dns_in["OPCODE"] == "0000" and List_db_dns_in["QDCOUNT"] == "0001" and List_db_dns_in[
         "QCLASS"] == "0001":
         requst = session.query(DynDNS).filter(DynDNS.NAME == qname).first()
         if List_db_dns_in["ARCOUNT"] == "0000":
             if List_db_dns_in["QTYPE"] == "0001":  # A format
                 if requst is not None:
-                    message_db_dns_out_f = answer_A_name(requst, List_db_dns_out)  # yes A
+                    if requst.Time_stop =="millenium":
+                        message_db_dns_out_f = answer_A_name(requst, List_db_dns_out)  # yes A
+                    else:
+                        if float(requst.Time_stop) >= time.time():
+                            message_db_dns_out_f = answer_A_name(requst, List_db_dns_out)  # yes A
+                        else:
+                            message_db_dns_out_f = answer_no_name(List_db_dns_out)  # no A
+
                 else:
                     message_db_dns_out_f = answer_no_name(List_db_dns_out)  # no A
                     if List_db_dns_in["RD"] == "1":

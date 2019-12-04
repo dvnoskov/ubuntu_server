@@ -17,13 +17,13 @@ def worker(address,Session):
     start_time = time.time()
     UDPServerSocket.sendto(binascii.unhexlify(DB_DNS_in(in_message,Session)), address)
     duration = time.time() - start_time
-    print("answear message :", clientIP,"Working in ",duration," seconds")
+ #   print("answear message :", clientIP,"Working in ",duration," seconds")
     return
 
 if __name__ == '__main__':
     UDPServerSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     UDPServerSocket.bind((host_DNS, port_DNS))
-    print("UDP server up and listening")
+ #   print("UDP server up and listening")
     concurrent.futures.ThreadPoolExecutor(max_workers=max_pool)
     pipeline = queue.Queue(maxsize=max_queue)
     engine = create_engine(route_DB)
@@ -41,9 +41,9 @@ if __name__ == '__main__':
            data = UDPServerSocket.recvfrom(1024)
            in_message = binascii.hexlify(data[0]).decode("utf-8")
            address = data[1]
-           print(in_message)
+  #         print(in_message)
            clientIP = "Client IP Address:{}".format(address)
-           print("incoming message :", clientIP)
+  #         print("incoming message :", clientIP)
          #  p = multiprocessing.Process(target=worker(address))
            p = Thread(target=worker(address,Session), args=pipeline)
            p.start()

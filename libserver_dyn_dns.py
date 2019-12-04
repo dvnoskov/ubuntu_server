@@ -233,33 +233,64 @@ class Message:
     def str2hex(self):
         return binascii.hexlify(bytes(str.encode()))
 
+#
+    def UPDATE_DYNDNS(self,incom):
+        if incom == "ip" :
+            query = self.session.query(DynDNS)
+            update = {}
+            while True:
 
-    def UPDATE_DYNDNS(self):
-        query = self.session.query(DynDNS)
-        update = {}
-        while True:
+                work = query.filter(DynDNS.STATUS == 'USER').count()
+                if work >= 1:
+                    menu = self.session.query(DynDNS).filter(DynDNS.STATUS == 'USER').first()
+                    work_no = query.filter(DynDNS.dyndns_id == menu.dyndns_id)
+                    a1 = (int(menu.RDATA[0:2], 16))
+                    a2 = (int(menu.RDATA[2:4], 16))
+                    a3 = (int(menu.RDATA[4:6], 16))
+                    a4 = (int(menu.RDATA[6:8], 16))
+                    ip = str(a1) + "." + str(a2) + "." + str(a3) + "." + str(a4)
+                    update[((binascii.unhexlify(menu.NAME)).decode('utf-8'))] = ip  #
+                    work_no.update({DynDNS.STATUS: ("SYN")})
+                    self.session.commit()
 
-            work = query.filter(DynDNS.STATUS == 'USER').count()
-            if work >= 1:
-                menu = self.session.query(DynDNS).filter(DynDNS.STATUS == 'USER').first()
-                work_no = query.filter(DynDNS.dyndns_id == menu.dyndns_id)
-                a1 = (int(menu.RDATA[0:2], 16))
-                a2 = (int(menu.RDATA[2:4], 16))
-                a3 = (int(menu.RDATA[4:6], 16))
-                a4 = (int(menu.RDATA[6:8], 16))
-                ip = str(a1) + "." + str(a2) + "." + str(a3) + "." + str(a4)
-                update[((binascii.unhexlify(menu.NAME)).decode('utf-8'))] = ip  #
-                work_no.update({DynDNS.STATUS: ("SYN")})
-                self.session.commit()
+                else:
+                    break
 
-            else:
-                break
+            sys = query.filter(DynDNS.STATUS == 'SYN')
+            sys.update({DynDNS.STATUS: ("USER")})
+            self.stop_DB()
 
-        sys = query.filter(DynDNS.STATUS == 'SYN')
-        sys.update({DynDNS.STATUS: ("USER")})
-        self.stop_DB()
+        elif incom == "time" :
+            query = self.session.query(DynDNS)
+            update = {}
+            while True:
+
+                work = query.filter(DynDNS.STATUS == 'USER').count()
+                if work >= 1:
+                    menu = self.session.query(DynDNS).filter(DynDNS.STATUS == 'USER').first()
+                    work_no = query.filter(DynDNS.dyndns_id == menu.dyndns_id)
+                    if menu.Time_stop =="millenium":
+                        update[((binascii.unhexlify(menu.NAME)).decode('utf-8'))] = menu.Time_stop  #
+                        work_no.update({DynDNS.STATUS: ("SYN")})
+                        self.session.commit()
+                    else:
+                       # update[((binascii.unhexlify(menu.NAME)).decode('utf-8'))] = time.ctime(float(menu.Time_stop))  #
+                        update[((binascii.unhexlify(menu.NAME)).decode('utf-8'))] = time.strftime("%d-%m-%Y",time.localtime(float(menu.Time_stop)))  #
+                        work_no.update({DynDNS.STATUS: ("SYN")})
+                        self.session.commit()
+
+
+
+                else:
+                    break
+
+            sys = query.filter(DynDNS.STATUS == 'SYN')
+            sys.update({DynDNS.STATUS: ("USER")})
+            self.stop_DB()
+
+
         return update
-
+#
 
     def stop_DB(self):
         self.session.commit()
@@ -312,16 +343,33 @@ class Message:
                 self.header_out = "Content-Encoding"+":"+ "utf-8"+"\r\n"+'Pragma'+":"+ 'no-cache'+"\r\n"+\
                                  'Cache-Control'+":"+'no-cache'+"\r\n"+'Content-Length'+":"+ str(len(text))+"\r\n"
                 self.do_HEAD()
-
+#
+            elif self.path == "/nic/ip":
+                self.send_response = "200 OK"
+                text = " Ip adress :"+self.addr[0]
+                self.body_out = text
+                self.header_out = "Content-Encoding" + ":" + "utf-8" + "\r\n" + 'Pragma' + ":" + 'no-cache' + "\r\n" + \
+                                  'Cache-Control' + ":" + 'no-cache' + "\r\n" + 'Content-Length' + ":" + str(len(text)) + "\r\n"
+                self.do_HEAD()
+#
             elif self.path == "/nic/status":
                 self.send_response = "200 OK"
-                text = json.dumps(self.UPDATE_DYNDNS())
+                text = json.dumps(self.UPDATE_DYNDNS("ip"))
                 self.body_out = text
                 self.header_out = "Content-Encoding" + ":" + "utf-8" + "\r\n" + 'Pragma' + ":" + 'no-cache' + "\r\n" + \
                                   'Cache-Control' + ":" + 'no-cache' + "\r\n" + 'Content-Length' + ":"\
                                   + str(len(text)) + "\r\n"
                 self.do_HEAD()
 
+            elif self.path == "/nic/time":
+                self.send_response = "200 OK"
+                text = json.dumps(self.UPDATE_DYNDNS("time"))
+                self.body_out = text
+                self.header_out = "Content-Encoding" + ":" + "utf-8" + "\r\n" + 'Pragma' + ":" + 'no-cache' + "\r\n" + \
+                                  'Cache-Control' + ":" + 'no-cache' + "\r\n" + 'Content-Length' + ":"\
+                                  + str(len(text)) + "\r\n"
+                self.do_HEAD()
+#
             else:
                 self.send_response = "404 OK" # no route
                 text = "404 "
@@ -357,6 +405,7 @@ class Message:
             else:
                 self.stop_DB()
                 self.do_Requst_get()
+
 
     def do_Requst_get(self):
         if self.user != "admin":
