@@ -72,7 +72,8 @@ class Message:
         #        self.start_time = time.time()
         #        print("incoming message",data) #     incoming message
             else:
-                raise RuntimeError("Peer closed.")
+         #       raise RuntimeError("Peer closed.")
+              pass
 
 
     def _write(self):   #11
