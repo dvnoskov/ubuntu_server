@@ -69,15 +69,15 @@ class Message:
         else:
             if data:
                 self._recv_buffer += data
-                self.start_time = time.time()
-                print("incoming message",data) #     incoming message
+        #        self.start_time = time.time()
+        #        print("incoming message",data) #     incoming message
             else:
                 raise RuntimeError("Peer closed.")
 
 
     def _write(self):   #11
         if self._send_buffer:
-            print("sending", repr(self._send_buffer), "to", self.addr)
+       #     print("sending", repr(self._send_buffer), "to", self.addr)
             try:
                 # Should be ready to write
                 sent = self.sock.send(self._send_buffer)
@@ -89,8 +89,8 @@ class Message:
                 # Close when the buffer is drained. The response has been sent.
                 if sent and not self._send_buffer:
                     self.close()
-                    duration = time.time() - self.start_time
-                    print(duration)
+        #            duration = time.time() - self.start_time
+        #            print(duration)
 
 
     def _create_response_content(self):
@@ -148,7 +148,7 @@ class Message:
 
 
     def close(self):
-        print("closing connection to", self.addr)
+    #    print("closing connection to", self.addr)
         try:
             self.selector.unregister(self.sock)
         except Exception as e:
