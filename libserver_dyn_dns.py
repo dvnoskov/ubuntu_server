@@ -325,7 +325,7 @@ class Message:
 
         if self.headers["Host"] == " dimon49.ml" or self.headers["Host"] == " members.dyndns.org" \
                 or self.headers["Host"] == " 193.254.196.206" or self.headers["Host"] == " 192.168.1.144":
-                     # "_xxxxxxxx' example " 127.0.0.1:65432"
+                                                                   # "_xxxxxxxx' example " 127.0.0.1:65432"
 
             if self.path == "/nic/update":
                 if self.headers['Authorization'] == None:
