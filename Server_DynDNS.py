@@ -2,7 +2,10 @@ import socket,time
 import selectors
 import libserver_dyn_dns
 import logging.handlers
-from config import port_DYN_DNS,host_DNS
+from config import port_DYN_DNS, host_DNS, max_pool, max_queue
+import queue
+from threading import Thread
+import concurrent.futures
 
 
 sel = selectors.DefaultSelector()
@@ -23,6 +26,8 @@ lsock.listen()
 #print("listening on", (host_DNS, port_DYN_DNS))
 lsock.setblocking(False)
 sel.register(lsock, selectors.EVENT_READ, data=None)
+concurrent.futures.ThreadPoolExecutor(max_workers=max_pool)
+pipeline = queue.Queue(maxsize=max_queue)
 
 
 try:
@@ -35,7 +40,9 @@ try:
         events = sel.select(timeout=None)
         for key, mask in events:
             if key.data is None:
-                accept_wrapper(key.fileobj)
+                p = Thread(target=accept_wrapper(key.fileobj), args=pipeline)
+                p.start()
+                #  accept_wrapper(key.fileobj)
             else:
                 message = key.data
                 try:

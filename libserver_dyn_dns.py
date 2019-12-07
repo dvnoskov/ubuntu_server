@@ -11,10 +11,10 @@ import threading
 from config import route_DB
 import re, json,time
 import logging.handlers
-import queue
-from threading import Thread
-import concurrent.futures
-from config import port_DNS,host_DNS,max_pool,max_queue
+#import queue
+#from threading import Thread
+#import concurrent.futures
+#from config import port_DNS,host_DNS,max_pool,max_queue
 
 
 class Message:
@@ -41,8 +41,8 @@ class Message:
         self.loger.setLevel(logging.DEBUG)
         h = logging.handlers.RotatingFileHandler("LOG_dyn_dns.out", 300, 10)
         self.loger.addHandler(h)
-        concurrent.futures.ThreadPoolExecutor(max_workers=max_pool)
-        self.pipeline = queue.Queue(maxsize=max_queue)
+    #    concurrent.futures.ThreadPoolExecutor(max_workers=max_pool)
+    #    self.pipeline = queue.Queue(maxsize=max_queue)
 
 
     def _set_selector_events_mask(self, mode):
@@ -72,8 +72,8 @@ class Message:
         #        self.start_time = time.time()
         #        print("incoming message",data) #     incoming message
             else:
-         #       raise RuntimeError("Peer closed.")
-              pass
+                raise RuntimeError("Peer closed.")
+         #     pass
 
 
     def _write(self):   #11
@@ -112,17 +112,20 @@ class Message:
 
 
 
+
     def process_events(self, mask):
         if mask & selectors.EVENT_READ:
             engine = create_engine(route_DB)
             self.Session = sessionmaker(bind=engine)
             self.session = self.Session()
             self.Base = declarative_base()
-            p = Thread(target=self.read(), args=self.pipeline)
-            p.start()
+            self.read()
+         #   p = Thread(target=self.read(), args=self.pipeline)
+         #   p.start()
         if mask & selectors.EVENT_WRITE:
-            p1 = Thread(target=self.write(), args=self.pipeline)
-            p1.start()
+            self.write()
+         #   p1 = Thread(target=self.write(), args=self.pipeline)
+         #   p1.start()
 
 
     def read(self):
@@ -324,7 +327,7 @@ class Message:
     def do_GET(self):
 
         if self.headers["Host"] == " dimon49.ml" or self.headers["Host"] == " members.dyndns.org" \
-                or self.headers["Host"] == " 193.254.196.206" or self.headers["Host"] == " 192.168.1.144":
+                or self.headers["Host"] == " 193.254.196.206" or self.headers["Host"] == " 192.168.1.180":
                                                                    # "_xxxxxxxx' example " 127.0.0.1:65432"
 
             if self.path == "/nic/update":
