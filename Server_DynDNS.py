@@ -25,16 +25,17 @@ if __name__ == '__main__':
     # print("listening on", (host_DNS, port_DYN_DNS))
     lsock.setblocking(False)
     sel.register(lsock, selectors.EVENT_READ, data=None)
+
     concurrent.futures.ThreadPoolExecutor(max_workers=max_pool)
     pipeline = queue.Queue(maxsize=max_queue)
 
+    loger = logging.getLogger()
+    loger.setLevel(logging.DEBUG)
+    h = logging.handlers.RotatingFileHandler("listen_dyn_dns_log.out", 300, 10)
+    loger.addHandler(h)
+
     try:
         while True:
-            loger = logging.getLogger()
-            loger.setLevel(logging.DEBUG)
-            h = logging.handlers.RotatingFileHandler("listen_dyn_dns_log.out", 300, 10)
-            loger.addHandler(h)
-
             events = sel.select(timeout=None)
             for key, mask in events:
                 if key.data is None:
