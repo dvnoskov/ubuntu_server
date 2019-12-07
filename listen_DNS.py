@@ -29,14 +29,14 @@ if __name__ == '__main__':
     engine = create_engine(route_DB)
     Session = sessionmaker(bind=engine)
 
+    loger = logging.getLogger()
+    loger.setLevel(logging.DEBUG)
+    h = logging.handlers.RotatingFileHandler("listen_dns_log.out", 300, 10)
+    loger.addHandler(h)
+
     while (True):
 
        try:
-
-           loger = logging.getLogger()
-           loger.setLevel(logging.DEBUG)
-           h=logging.handlers.RotatingFileHandler("listen_dns_log.out",300,10)
-           loger.addHandler(h)
 
            data = UDPServerSocket.recvfrom(1024)
            in_message = binascii.hexlify(data[0]).decode("utf-8")
