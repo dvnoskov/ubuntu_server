@@ -5,7 +5,6 @@ import logging.handlers
 from config import port_DYN_DNS,host_DNS
 
 
-
 sel = selectors.DefaultSelector()
 
 
