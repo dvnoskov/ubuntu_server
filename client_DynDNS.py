@@ -13,10 +13,10 @@ data = {
         }
 
 data2 = {
-            "hostname" : 'kik04.kiksecurity.ml',
-            "myip"     : '192.168.1.117',
-             "wildcard": 'NOCHG',
-             "mx"      : 'NOCHG',
+         #   "hostname" : 'kik04.kiksecurity.ml',
+         #   "myip"     : '192.168.1.117',
+         #    "wildcard": 'NOCHG',
+         #    "mx"      : 'NOCHG',
              "backmx"  : 'NO'
         }
 
@@ -35,13 +35,14 @@ data1 = {
 #url="http://193.254.196.206/nic/test"
 #r = requests.get(url)
 #r = requests.get(url,auth=("KiK","12345KiK"))
-#url="http://192.168.1.180/nic/update"  #
+#url="http://192.168.1.180/nic/update"  ################
 #url="http://193.254.196.206/nic/update"  #
 #url="http://dimon49.ml/nic/update"  #
 #r = requests.get(url,data=data,auth=("test","test"))
-#r = requests.get(url,params=data1,auth=("KiK","12345KiK"))
+#r = requests.get(url,params=data1,auth=("KiK","12345KiK"))  ############
 #r = requests.get(url,params=data1,auth=("admin","12345KiK"))
 url="http://192.168.1.180/nic/status"  #
+
 r = requests.get(url)
 
 print("status_code ",r.status_code )

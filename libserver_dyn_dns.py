@@ -39,8 +39,6 @@ class Message:
         self.request_line = None
         self.loger = logging.getLogger()
         self.loger.setLevel(logging.DEBUG)
-        h = logging.handlers.RotatingFileHandler("LOG_dyn_dns.out", 300, 10)
-        self.loger.addHandler(h)
         concurrent.futures.ThreadPoolExecutor(max_workers=max_pool)
         self.pipeline = queue.Queue(maxsize=max_queue)
 
@@ -62,18 +60,16 @@ class Message:
     def _read(self):   #3
         try:
             # Should be ready to read
-            data = self.sock.recv(4096)
+            data = self.sock.recv(1024)
         except BlockingIOError:
             # Resource temporarily unavailable (errno EWOULDBLOCK)
             pass
         else:
             if data:
                 self._recv_buffer += data
-        #        self.start_time = time.time()
-        #        print("incoming message",data) #     incoming message
             else:
                 raise RuntimeError("Peer closed.")
-         #     pass
+
 
 
     def _write(self):   #11
@@ -90,8 +86,7 @@ class Message:
                 # Close when the buffer is drained. The response has been sent.
                 if sent and not self._send_buffer:
                     self.close()
-        #            duration = time.time() - self.start_time
-        #            print(duration)
+
 
 
     def _create_response_content(self):
@@ -112,20 +107,11 @@ class Message:
 
 
 
-
     def process_events(self, mask):
         if mask & selectors.EVENT_READ:
-            engine = create_engine(route_DB)
-            self.Session = sessionmaker(bind=engine)
-            self.session = self.Session()
-            self.Base = declarative_base()
             self.read()
-         #   p = Thread(target=self.read(), args=self.pipeline)
-         #   p.start()
         if mask & selectors.EVENT_WRITE:
-          #  self.write()
-            p1 = Thread(target=self.write(), args=self.pipeline)
-            p1.start()
+            self.write()
 
 
     def read(self):
@@ -147,8 +133,8 @@ class Message:
         if self.request:
             if self.response_created:
                if self._send_buffer:
-                  self._write()
-
+                   p1 = Thread(target=self._write(), args=self.pipeline)
+                   p1.start()
 
 
     def close(self):
@@ -178,7 +164,11 @@ class Message:
             str_head_body = req.split("\\r\\n\\r\\n")
             str_hed = str_head_body[0].split("\\r\\n")
             str_line = str_hed[0][2:].split(" ")
-            str_line_path = str_line[1].split("?")
+            if ((re.compile(r'.?').search(str_line[1])).group(0)) == "/":
+                str_line_path = str_line[1].split("?")
+            else:
+                str_line_path = str_line[1]
+
             self.methold = str_line[0]
             self.path = str_line_path[0]
             self.request_line = str_line_path
@@ -294,7 +284,7 @@ class Message:
 
 
         return update
-#
+
 
     def stop_DB(self):
         self.session.commit()
@@ -325,7 +315,10 @@ class Message:
 
 
     def do_GET(self):
-
+        engine = create_engine(route_DB)
+        self.Session = sessionmaker(bind=engine)
+        self.session = self.Session()
+        self.Base = declarative_base()
         if self.headers["Host"] == " dimon49.ml" or self.headers["Host"] == " members.dyndns.org" \
                 or self.headers["Host"] == " 193.254.196.206" or self.headers["Host"] == " 192.168.1.144":
                                                                    # "_xxxxxxxx' example " 127.0.0.1:65432"
@@ -347,7 +340,7 @@ class Message:
                 self.header_out = "Content-Encoding"+":"+ "utf-8"+"\r\n"+'Pragma'+":"+ 'no-cache'+"\r\n"+\
                                  'Cache-Control'+":"+'no-cache'+"\r\n"+'Content-Length'+":"+ str(len(text))+"\r\n"
                 self.do_HEAD()
-#
+
             elif self.path == "/nic/ip":
                 self.send_response = "200 OK"
                 text = " Ip adress :"+self.addr[0]
@@ -355,7 +348,7 @@ class Message:
                 self.header_out = "Content-Encoding" + ":" + "utf-8" + "\r\n" + 'Pragma' + ":" + 'no-cache' + "\r\n" + \
                                   'Cache-Control' + ":" + 'no-cache' + "\r\n" + 'Content-Length' + ":" + str(len(text)) + "\r\n"
                 self.do_HEAD()
-#
+
             elif self.path == "/nic/status":
                 self.send_response = "200 OK"
                 text = json.dumps(self.UPDATE_DYNDNS("ip"))
@@ -373,7 +366,7 @@ class Message:
                                   'Cache-Control' + ":" + 'no-cache' + "\r\n" + 'Content-Length' + ":"\
                                   + str(len(text)) + "\r\n"
                 self.do_HEAD()
-#
+
             else:
                 self.send_response = "404 OK" # no route
                 text = "404 "
@@ -429,6 +422,7 @@ class Message:
 
                 else:
                     pass
+
 
             ip = myip_in.split(".")
             s = [int(ip[0]), int(ip[1]), int(ip[2]), int(ip[3])]

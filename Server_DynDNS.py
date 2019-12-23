@@ -2,7 +2,7 @@ import socket,time
 import selectors
 import libserver_dyn_dns
 import logging.handlers
-from config import port_DYN_DNS, host_DNS, max_pool, max_queue
+from config import port_DYN_DNS, host_DNS, max_pool_ser, max_queue_ser
 import queue
 from threading import Thread
 import concurrent.futures
@@ -10,7 +10,6 @@ import concurrent.futures
 
 def accept_wrapper(sock):
     conn, addr = sock.accept()  # Should be ready to read
-   # print("accepted connection from", addr)
     conn.setblocking(False)
     message = libserver_dyn_dns.Message(sel, conn, addr)
     sel.register(conn, selectors.EVENT_READ, data=message)
@@ -22,12 +21,11 @@ if __name__ == '__main__':
     lsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     lsock.bind((host_DNS, port_DYN_DNS))
     lsock.listen()
-    # print("listening on", (host_DNS, port_DYN_DNS))
     lsock.setblocking(False)
     sel.register(lsock, selectors.EVENT_READ, data=None)
 
-    concurrent.futures.ThreadPoolExecutor(max_workers=max_pool)
-    pipeline = queue.Queue(maxsize=max_queue)
+    concurrent.futures.ThreadPoolExecutor(max_workers=max_pool_ser)
+    pipeline = queue.Queue(maxsize=max_queue_ser)
 
     loger = logging.getLogger()
     loger.setLevel(logging.DEBUG)
@@ -41,7 +39,7 @@ if __name__ == '__main__':
                 if key.data is None:
                     p = Thread(target=accept_wrapper(key.fileobj), args=pipeline)
                     p.start()
-                    #  accept_wrapper(key.fileobj)
+
                 else:
                     message = key.data
                     try:
