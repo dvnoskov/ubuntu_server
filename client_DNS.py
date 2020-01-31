@@ -265,7 +265,7 @@ def List_read_in(List_in):
 
                         start = start + 1
                         step = step + 32
-    elif List_in["QTYPE"] == "0110" and List_in["RCODE"] == "0000" and List_in["NSCOUNT"] =="0001":  # SOA
+    elif List_in["QTYPE"] == "0110" and List_in["RCODE"] == "0000" and List_in["NSCOUNT"] == "0001":  # SOA
         RNAME_out = ''
         RNAME_out = RNAME_out + hex2str(str(List_in.get("RNAME")[0:16])).decode('utf-8')
         i = 16
@@ -308,7 +308,7 @@ def List_read_in(List_in):
     else:
         pass
 
-    if List_in["QTYPE"] == "0001" and List_in["ARCOUNT"] != "0000" and List_in["ARCOUNT_new"]!="0000":
+    if List_in["QTYPE"] == "0001" and List_in["ARCOUNT"] != "0000" and List_in["ARCOUNT_new"] != "0000":
 
         print("type_cover:" + "                                                  " + List_in.get("type_cover"))
         print("arlgorithm:" + "    value algorithm                               " + List_in.get("arlgorithm"))

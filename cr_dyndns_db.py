@@ -1,9 +1,9 @@
-from sqlalchemy import  Column, Integer,String,ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 from sqlalchemy import DateTime
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker,relationship
+from sqlalchemy.orm import sessionmaker, relationship
 
 
 engine = create_engine('sqlite:///DynDNS_server_DB')
@@ -18,7 +18,7 @@ Base = declarative_base()
 class DynDNS(Base):
     __tablename__ = 'DynDNS'
     dyndns_id = Column(Integer(), primary_key=True)
-    USER = Column((String(63)),ForeignKey('users.username'))
+    USER = Column((String(63)), ForeignKey('users.username'))
     NAME = Column(String(63))
     TYPE = Column(String(16))
     CLASS = Column(String(16))
@@ -32,7 +32,8 @@ class DynDNS(Base):
     STATUS = Column(String(63))
 
 
-def __ini__(self, dyndns_id,USER,NAME,TYPE,CLASS,TTL,RDLENGTH,ANCOUNT,RDATA,Time_stop,created_on,updated_on,STATUS):
+def __ini__(self, dyndns_id, USER, NAME, TYPE, CLASS, TTL, RDLENGTH, ANCOUNT, RDATA,\
+            Time_stop, created_on, updated_on, STATUS):
         self.dyndns_id = dyndns_id
         self.USER = USER
         self.NAME = NAME
@@ -40,7 +41,7 @@ def __ini__(self, dyndns_id,USER,NAME,TYPE,CLASS,TTL,RDLENGTH,ANCOUNT,RDATA,Time
         self.CLASS = CLASS
         self.TTL = TTL
         self.RDLENGTH = RDLENGTH
-        self.ANCOUNT=ANCOUNT
+        self.ANCOUNT = ANCOUNT
         self.RDATA = RDATA
         self.Time_stop = Time_stop
         self.created_on = created_on
@@ -73,7 +74,8 @@ class User(Base):
     updated_on = Column(DateTime(), default=datetime.now, onupdate=datetime.now)
     DynDNS = relationship("DynDNS")
 
-def __init__(self, username, password,time_stop, created_on, updated_on):
+
+def __init__(self, username, password, time_stop, created_on, updated_on):
     self.username = username
     self.password = password
     self.time_stop = time_stop

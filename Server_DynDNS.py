@@ -1,11 +1,14 @@
-import socket,time
+import socket
+import time
 import selectors
-import libserver_dyn_dns
-import logging.handlers
-from config import port_DYN_DNS, host_DNS, max_pool_ser, max_queue_ser
 import queue
 from threading import Thread
 import concurrent.futures
+import logging.handlers
+
+from config import port_DYN_DNS, host_DNS, max_pool_ser, max_queue_ser
+import libserver_dyn_dns
+
 
 
 def accept_wrapper(sock):

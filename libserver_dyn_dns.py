@@ -2,19 +2,19 @@ import selectors
 import urllib.parse
 import binascii
 import base64
-import urllib.parse
+import json
+import time
+import threading
+import re
+import logging.handlers
+import queue
+import concurrent.futures
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from cr_dyndns_db import DynDNS, User
-import threading
-from config import route_DB
-import re, json,time
-import logging.handlers
-import queue
 from threading import Thread
-import concurrent.futures
-from config import port_DNS,host_DNS,max_pool,max_queue
+from config import max_pool, max_queue, route_DB
+from cr_dyndns_db import DynDNS, User
 
 
 class Message:
@@ -91,7 +91,7 @@ class Message:
 
     def _create_response_content(self):
         self.header_out += "Content-Type" + ":" + "text/html" + "\r\n" + 'Server' + ":" + 'HTTP_v.1 Python/3.5.3' + \
-                            "\r\n" + 'Date' + ":" + time.ctime() + "\r\n\r\n"
+            "\r\n" + 'Date' + ":" + time.ctime() + "\r\n\r\n"
         response = self.version_http + " " + self.send_response + "\r\n" + self.header_out + self.body_out
         respo = response.encode("utf-8")   # default
         return respo
@@ -100,7 +100,7 @@ class Message:
 
     def _create_response_content_no(self):
         self.header_out += "Content-Type" + ":" + "text/html" + "\r\n" + 'Server' + ":" + 'HTTP_v.1 Python/3.5.3' + \
-                            "\r\n" + 'Date' + ":" + time.ctime() + "\r\n\r\n"
+            "\r\n" + 'Date' + ":" + time.ctime() + "\r\n\r\n"
         response = self.version_http + " " + self.send_response + "\r\n" + self.header_out
         respo = response.encode("utf-8")   # default
         return respo
@@ -120,7 +120,7 @@ class Message:
         if self._jsonheader_len is None:
             self.process_protoheader()
 
-        if self.jsonheader is None :
+        if self.jsonheader is None:
                 self.process_request()
 
 
@@ -132,9 +132,9 @@ class Message:
 
         if self.request:
             if self.response_created:
-               if self._send_buffer:
-                   p1 = Thread(target=self._write(), args=self.pipeline)
-                   p1.start()
+                if self._send_buffer:
+                    p1 = Thread(target=self._write(), args=self.pipeline)
+                    p1.start()
 
 
     def close(self):
@@ -178,20 +178,20 @@ class Message:
             start_heade = 0
             while True:
                 if start_heade <= len(str_hed[1:]) - 1:
-                    heade[(str_hed[1:][start_heade][0:(str_hed[1:][start_heade]).find(":")])] = (
+                    heade[(str_hed[1:][start_heade][0:(str_hed[1:][start_heade]).find(":")])] = (\
                     str_hed[1:][start_heade][(str_hed[1:][start_heade]).find(":") + 1:])
                     start_heade = start_heade + 1
                 else:
                     break
 
             self.headers = heade
-            if len(str_head_body[1])>= hdrlen:
+            if len(str_head_body[1]) >= hdrlen:
                 if self.headers['Content-Type'] == 'text/html':
-                       if not len(str_head_body[1])>=len(self.headers['Content-Length']):
-                           return
-                       else:
-                            self.body = str_head_body[1]
-                            self.request = self.body
+                    if not len(str_head_body[1]) >= len(self.headers['Content-Length']):
+                        return
+                    else:
+                        self.body = str_head_body[1]
+                        self.request = self.body
             else:
                 self.request = self.path
 
@@ -213,7 +213,7 @@ class Message:
 
     def create_response(self):
 
-        if len(self.body_out)>= 2:
+        if len(self.body_out) >= 2:
             response = self._create_response_content()
         else:
             response = self._create_response_content_no()
@@ -228,8 +228,8 @@ class Message:
         return binascii.hexlify(bytes(str.encode()))
 
 #
-    def UPDATE_DYNDNS(self,incom):
-        if incom == "ip" :
+    def UPDATE_DYNDNS(self, incom):
+        if incom == "ip":
             query = self.session.query(DynDNS)
             update = {}
             while True:
@@ -254,7 +254,7 @@ class Message:
             sys.update({DynDNS.STATUS: ("USER")})
             self.stop_DB()
 
-        elif incom == "time" :
+        elif incom == "time":
             query = self.session.query(DynDNS)
             update = {}
             while True:
@@ -263,13 +263,14 @@ class Message:
                 if work >= 1:
                     menu = self.session.query(DynDNS).filter(DynDNS.STATUS == 'USER').first()
                     work_no = query.filter(DynDNS.dyndns_id == menu.dyndns_id)
-                    if menu.Time_stop =="millenium":
+                    if menu.Time_stop == "millenium":
                         update[((binascii.unhexlify(menu.NAME)).decode('utf-8'))] = menu.Time_stop  #
                         work_no.update({DynDNS.STATUS: ("SYN")})
                         self.session.commit()
                     else:
                        # update[((binascii.unhexlify(menu.NAME)).decode('utf-8'))] = time.ctime(float(menu.Time_stop))  #
-                        update[((binascii.unhexlify(menu.NAME)).decode('utf-8'))] = time.strftime("%d-%m-%Y",time.localtime(float(menu.Time_stop)))  #
+                        update[((binascii.unhexlify(menu.NAME)).decode('utf-8'))] = time.strftime("%d-%m-%Y",\
+                                time.localtime(float(menu.Time_stop)))  #
                         work_no.update({DynDNS.STATUS: ("SYN")})
                         self.session.commit()
 
@@ -338,7 +339,7 @@ class Message:
                 text = "work"
                 self.body_out = text
                 self.header_out = "Content-Encoding"+":"+ "utf-8"+"\r\n"+'Pragma'+":"+ 'no-cache'+"\r\n"+\
-                                 'Cache-Control'+":"+'no-cache'+"\r\n"+'Content-Length'+":"+ str(len(text))+"\r\n"
+                    'Cache-Control'+":"+'no-cache'+"\r\n"+'Content-Length'+":"+ str(len(text))+"\r\n"
                 self.do_HEAD()
 
             elif self.path == "/nic/ip":
@@ -346,7 +347,7 @@ class Message:
                 text = " Ip adress :"+self.addr[0]
                 self.body_out = text
                 self.header_out = "Content-Encoding" + ":" + "utf-8" + "\r\n" + 'Pragma' + ":" + 'no-cache' + "\r\n" + \
-                                  'Cache-Control' + ":" + 'no-cache' + "\r\n" + 'Content-Length' + ":" + str(len(text)) + "\r\n"
+                    'Cache-Control' + ":" + 'no-cache' + "\r\n" + 'Content-Length' + ":" + str(len(text)) + "\r\n"
                 self.do_HEAD()
 
             elif self.path == "/nic/status":
@@ -354,7 +355,7 @@ class Message:
                 text = json.dumps(self.UPDATE_DYNDNS("ip"))
                 self.body_out = text
                 self.header_out = "Content-Encoding" + ":" + "utf-8" + "\r\n" + 'Pragma' + ":" + 'no-cache' + "\r\n" + \
-                                  'Cache-Control' + ":" + 'no-cache' + "\r\n" + 'Content-Length' + ":"\
+                    'Cache-Control' + ":" + 'no-cache' + "\r\n" + 'Content-Length' + ":"\
                                   + str(len(text)) + "\r\n"
                 self.do_HEAD()
 
@@ -363,7 +364,7 @@ class Message:
                 text = json.dumps(self.UPDATE_DYNDNS("time"))
                 self.body_out = text
                 self.header_out = "Content-Encoding" + ":" + "utf-8" + "\r\n" + 'Pragma' + ":" + 'no-cache' + "\r\n" + \
-                                  'Cache-Control' + ":" + 'no-cache' + "\r\n" + 'Content-Length' + ":"\
+                    'Cache-Control' + ":" + 'no-cache' + "\r\n" + 'Content-Length' + ":"\
                                   + str(len(text)) + "\r\n"
                 self.do_HEAD()
 
@@ -372,7 +373,7 @@ class Message:
                 text = "404 "
                 self.body_out = text
                 self.header_out = "Content-Encoding" + ":" + "utf-8" + "\r\n" + 'X-UpdateCode' + ":" + 'X' + "\r\n" + \
-                                  'Content-Length' + ":" + str(len(text)) + "\r\n"
+                    'Content-Length' + ":" + str(len(text)) + "\r\n"
                 self.do_HEAD()
 
         else:
@@ -380,7 +381,7 @@ class Message:
             text = "404 "
             self.body_out = text
             self.header_out = "Content-Encoding" + ":" + "utf-8" + "\r\n" + 'X-UpdateCode' + ":" + 'X' + "\r\n" + \
-                               'Content-Length' + ":" + str(len(text)) + "\r\n"
+                'Content-Length' + ":" + str(len(text)) + "\r\n"
             self.do_HEAD()
 
 
@@ -437,7 +438,7 @@ class Message:
                 text = "dnserr"
                 self.body_out = text
                 self.header_out = "Content-Encoding" + ":" + "utf-8" + "\r\n" + 'X-UpdateCode' + ":" + 'A' + "\r\n" + \
-                                  'Content-Length' + ":" + str(len(text)) + "\r\n"
+                    'Content-Length' + ":" + str(len(text)) + "\r\n"
                 self.do_HEAD()
             else:
                 filt3 = query.filter(
@@ -448,7 +449,7 @@ class Message:
                     text = "nohost"
                     self.body_out = text
                     self.header_out = "Content-Encoding" + ":" + "utf-8" + "\r\n" + 'X-UpdateCode' + ":" + 'A' + "\r\n" + \
-                                      'Content-Length' + ":" + str(len(text)) + "\r\n"
+                        'Content-Length' + ":" + str(len(text)) + "\r\n"
                     self.do_HEAD()
                 else:
                     filt4 = query.filter(
@@ -464,7 +465,7 @@ class Message:
                         text = "good   " + str(myip_in)
                         self.body_out = text
                         self.header_out = "Content-Encoding" + ":" + "utf-8" + "\r\n" + 'X-UpdateCode' + ":" + 'A' + "\r\n" + \
-                                          'Content-Length' + ":" + str(len(text)) + "\r\n"
+                            'Content-Length' + ":" + str(len(text)) + "\r\n"
                         self.do_HEAD()
                     else:
                         self.stop_DB()
@@ -472,7 +473,7 @@ class Message:
                         text = "nochg"
                         self.body_out = text
                         self.header_out = "Content-Encoding" + ":" + "utf-8" + "\r\n" + 'X-UpdateCode' + ":" + 'A' + "\r\n" + \
-                                          'Content-Length' + ":" + str(len(text)) + "\r\n"
+                            'Content-Length' + ":" + str(len(text)) + "\r\n"
                         self.do_HEAD()
 
         else:
