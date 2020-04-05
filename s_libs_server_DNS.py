@@ -116,8 +116,10 @@ def answer_no_name(List_db_dns_out,List_db_dns_out_1):
     List_db_dns_out["TTL"] = MINIMUM
     NAME_err = "err.dynhost.ml"
 
-    if os.path.isfile(os.path.abspath('.\\Records\\SOA.txt')):
-        infile = open(os.path.abspath('.\\Records\\SOA.txt'), 'r')
+ #   if os.path.isfile(os.path.abspath('.\\Records\\SOA.txt')):
+ #      infile = open(os.path.abspath('.\\Records\\SOA.txt'), 'r')
+    if os.path.isfile(os.path.abspath('./Records/SOA.txt')): # ubuntu version
+        infile = open(os.path.abspath('./Records/SOA.txt'), 'r')
         with infile as fil:
             for line in fil:
                 if line.startswith('SOA record '):
@@ -218,8 +220,10 @@ def answer_SOA(requst, List_db_dns_out,List_db_dns_out_1):
     List_db_dns_out["CLASS"] = requst.CLASS
     List_db_dns_out["TTL"] = requst.TTL
     soa = 0
-    if os.path.isfile(os.path.abspath('.\\Records\\SOA.txt')):
-        infile = open(os.path.abspath('.\\Records\\SOA.txt'), 'r')
+  #  if os.path.isfile(os.path.abspath('.\\Records\\SOA.txt')):
+  #      infile = open(os.path.abspath('.\\Records\\SOA.txt'), 'r')
+    if os.path.isfile(os.path.abspath('./Records/SOA.txt')): #ubuntu version
+        infile = open(os.path.abspath('./Records/SOA.txt'), 'r')
         with infile as fil:
             for line in fil:
                 soa_t = "default"
@@ -326,8 +330,10 @@ def answer_TXT(requst,List_db_dns_out,List_db_dns_out_1):
     List_db_dns_out["CLASS"] = requst.CLASS
     List_db_dns_out["TTL"] = requst.TTL
     fin_end = 0
-    if os.path.isfile(os.path.abspath('.\\Records\\TXT.txt')):
-        infile = open(os.path.abspath('.\\Records\\TXT.txt'), 'r')
+    if os.path.isfile(os.path.abspath('./Records/TXT.txt')): # ubuntu version
+        infile = open(os.path.abspath('./Records/TXT.txt'), 'r')
+  #  if os.path.isfile(os.path.abspath('.\\Records\\TXT.txt')):
+  #      infile = open(os.path.abspath('.\\Records\\TXT.txt'), 'r')
         with infile as fil:
             for line in fil:
                 if line.startswith('TXT_record'):
@@ -337,7 +343,6 @@ def answer_TXT(requst,List_db_dns_out,List_db_dns_out_1):
                         r1 = re.compile(r'TXT_count =(.*)#(.*)')
                         sep1 = r1.search(fil.readline())
                         if sep1.group(1).startswith("1"):
-                            print("yes")
                             r2 = re.compile(r'TXT_DATA =(.*)#(.*)')
                             sep2 = r2.search(fil.readline())
                             List_db_dns_out["TXT_DATA"] = str(str2hex(sep2.group(1)))[2:-1]
