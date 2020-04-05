@@ -2,8 +2,8 @@
 # config server
 #-----------------------------------------------------------------------
 #host_DNS = '127.0.0.1'  # Standard loopback interface address (localhost)
-host_DNS = '192.168.1.180'  # Standard loopback interface address (localhost)
-#host_DNS = '193.254.196.206'  # ip adress
+#host_DNS = '192.168.1.180'  # Standard loopback interface address (localhost)
+host_DNS = '193.254.196.206'  # ip adress
 #host_DNS2 ='192.168.1.190'  # Standard loopback interface address (localhost)
 port_DNS = 53  # Port to listen on (non-privileged ports are > 1023)
 port_DYN_DNS = 80  # Port to listen on (non-privileged ports are > 1023)
@@ -18,3 +18,4 @@ max_queue_ser = 20 #queue.Queue(maxsize)
 #time_update_DNS = 20 #time update DNS server
 #log_admin ='admin' #user admin
 #pas_admin ='adminKiK' # password admin
+MINIMUM = "00000E10" #3600
