@@ -466,8 +466,11 @@ def answer_NS(requst,List_db_dns_out,List_db_dns_out_1):
     List_db_dns_out["TYPE"] = "0002" # ns(2)
     List_db_dns_out["CLASS"] = requst.CLASS
     List_db_dns_out["TTL"] = requst.TTL
-    if os.path.isfile(os.path.abspath('.\\Records\\NS.txt')):
-        infile = open(os.path.abspath('.\\Records\\NS.txt'), 'r')
+    fin_end = 0
+#    if os.path.isfile(os.path.abspath('.\\Records\\NS.txt')):
+ #       infile = open(os.path.abspath('.\\Records\\NS.txt'), 'r')
+    if os.path.isfile(os.path.abspath('./Records/NS.txt')):
+        infile = open(os.path.abspath('./Records/NS.txt'), 'r')
         with infile as fil:
             for line in fil:
                 if line.startswith('NS record'):
@@ -490,7 +493,7 @@ def answer_NS(requst,List_db_dns_out,List_db_dns_out_1):
                             r2 = re.compile(r'NS_DATA =(.*)#(.*)')
                             sep2 = r2.search(fil.readline())
                             List_db_dns_out["NS_DATA"] = str(str2hex(sep2.group(1)))[2:-1] + "c014"
-                            print(List_db_dns_out["NS_DATA"])
+                        #    print(List_db_dns_out["NS_DATA"])
                             Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
                             List_db_dns_out_1["DATA"] = List_db_dns_out.get("NAME") + List_db_dns_out.get("TYPE") \
                             + List_db_dns_out.get("CLASS") + List_db_dns_out.get("TTL") \
@@ -498,7 +501,7 @@ def answer_NS(requst,List_db_dns_out,List_db_dns_out_1):
                             r3 = re.compile(r'NS_DATA =(.*)#(.*)')
                             sep3 = r3.search(fil.readline())
                             List_db_dns_out["NS_DATA"] = str(str2hex(sep3.group(1)))[2:-1] + "c014"
-                            print(List_db_dns_out["NS_DATA"])
+                         #   print(List_db_dns_out["NS_DATA"])
                             Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
                             List_db_dns_out_1["DATA"] = List_db_dns_out_1["DATA"] + List_db_dns_out.get("NAME") \
                             + List_db_dns_out.get("TYPE") + List_db_dns_out.get("CLASS") + List_db_dns_out.get("TTL") \
@@ -563,19 +566,20 @@ def answer_NS(requst,List_db_dns_out,List_db_dns_out_1):
                         else:
                             pass
                     else :
-                        fin_end = 2
+                        pass
                 else:
                     pass
 
         infile.close()
-        if fin_end != 1 :
-            message_db_dns_out = answer_no_name(List_db_dns_out, List_db_dns_out_1)
-        else:
+        if fin_end == 1 :
             message_db_dns_out = List_db_dns_out.get("ID") + List_db_dns_out.get("Header") \
-                             + List_db_dns_out.get("QDCOUNT") + List_db_dns_out.get("ANCOUNT") \
-                             + List_db_dns_out.get("NSCOUNT") + List_db_dns_out.get("ARCOUNT") \
-                             + List_db_dns_out.get("QNAME") + List_db_dns_out.get("QTYPE") \
-                             + List_db_dns_out.get("QCLASS") + List_db_dns_out_1.get("DATA")
+                                 + List_db_dns_out.get("QDCOUNT") + List_db_dns_out.get("ANCOUNT") \
+                                 + List_db_dns_out.get("NSCOUNT") + List_db_dns_out.get("ARCOUNT") \
+                                 + List_db_dns_out.get("QNAME") + List_db_dns_out.get("QTYPE") \
+                                 + List_db_dns_out.get("QCLASS") + List_db_dns_out_1.get("DATA")
+        else:
+            message_db_dns_out = answer_no_name(List_db_dns_out, List_db_dns_out_1)
+
     else:
         message_db_dns_out = answer_no_name(List_db_dns_out, List_db_dns_out_1) # print("error") # answer SOA
 
