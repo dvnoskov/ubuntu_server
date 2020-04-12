@@ -231,7 +231,7 @@ def answer_SOA(requst, List_db_dns_out,List_db_dns_out_1):
                     r = re.compile(r'SOA record =(.*)#(.*)')
                     sep = r.search(line)
                     if str(str2hex(sep.group(1)))[2:-1] == requst.NAME:
-                        print(str(str2hex(sep.group(1)))[2:-1])
+                        #print(str(str2hex(sep.group(1)))[2:-1])
 
                         r1 = re.compile(r'MNAME =(.*)#(.*)')
                         sep1 = r1.search(fil.readline())
@@ -262,7 +262,7 @@ def answer_SOA(requst, List_db_dns_out,List_db_dns_out_1):
                         + List_db_dns_out.get("CLASS") + List_db_dns_out.get("TTL") \
                         + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get("SOA")
                         soa = 1
-                        print(List_db_dns_out_1["DATA"])
+                        #print(List_db_dns_out_1["DATA"])
                     elif str(str2hex(sep.group(1)))[2:-1] == str(str2hex(soa_t))[2:-1] and soa == 0 :
                          r1 = re.compile(r'MNAME =(.*)#(.*)')
                          sep1 = r1.search(fil.readline())
@@ -443,7 +443,7 @@ def answer_TXT(requst,List_db_dns_out,List_db_dns_out_1):
     else:
         message_db_dns_out = answer_no_name(List_db_dns_out, List_db_dns_out_1) # print("error") # answer SOA
 
-    print(message_db_dns_out)
+    #print(message_db_dns_out)
     return message_db_dns_out
 
 
@@ -476,97 +476,119 @@ def answer_NS(requst,List_db_dns_out,List_db_dns_out_1):
                 if line.startswith('NS record'):
                     r = re.compile(r'NS record =(.*)#(.*)')
                     sep = r.search(line)
-                    if str(str2hex(sep.group(1)))[2:-1] == requst.NAME:
-                        r1 = re.compile(r'NS_count =(.*)#(.*)')
-                        sep1 = r1.search(fil.readline())
-                        if sep1.group(1).startswith("1"):
-                            r2 = re.compile(r'NS_DATA =(.*)#(.*)')
-                            sep2 = r2.search(fil.readline())
-                            List_db_dns_out["NS_DATA"] = str(str2hex(sep2.group(1)))[2:-1] + "c014"
-                            Rdlend(List_db_dns_out["NS_DATA"],List_db_dns_out_1)
-                            List_db_dns_out_1["DATA"] =  List_db_dns_out.get("NAME") + List_db_dns_out.get("TYPE") \
-                            + List_db_dns_out.get("CLASS") + List_db_dns_out.get("TTL")\
-                            + List_db_dns_out_1.get("RDLENGTH")+ List_db_dns_out.get("NS_DATA")
-                            List_db_dns_out["ANCOUNT"] = "0001"
-                            fin_end = 1
-                        elif sep1.group(1).startswith("2"):
-                            r2 = re.compile(r'NS_DATA =(.*)#(.*)')
-                            sep2 = r2.search(fil.readline())
-                            List_db_dns_out["NS_DATA"] = str(str2hex(sep2.group(1)))[2:-1] + "c014"
-                        #    print(List_db_dns_out["NS_DATA"])
-                            Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
-                            List_db_dns_out_1["DATA"] = List_db_dns_out.get("NAME") + List_db_dns_out.get("TYPE") \
-                            + List_db_dns_out.get("CLASS") + List_db_dns_out.get("TTL") \
-                            + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get("NS_DATA")
-                            r3 = re.compile(r'NS_DATA =(.*)#(.*)')
-                            sep3 = r3.search(fil.readline())
-                            List_db_dns_out["NS_DATA"] = str(str2hex(sep3.group(1)))[2:-1] + "c014"
-                         #   print(List_db_dns_out["NS_DATA"])
-                            Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
-                            List_db_dns_out_1["DATA"] = List_db_dns_out_1["DATA"] + List_db_dns_out.get("NAME") \
-                            + List_db_dns_out.get("TYPE") + List_db_dns_out.get("CLASS") + List_db_dns_out.get("TTL") \
-                            + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get("NS_DATA")
-                            List_db_dns_out["ANCOUNT"] = "0002"
-                            fin_end = 1
-                        elif sep1.group(1).startswith("3"):
-                            r2 = re.compile(r'NS_DATA =(.*)#(.*)')
-                            sep2 = r2.search(fil.readline())
-                            List_db_dns_out["NS_DATA"] = str(str2hex(sep2.group(1)))[2:-1]+ "c014"
-                            Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
-                            List_db_dns_out_1["DATA"] = List_db_dns_out.get("NAME") + List_db_dns_out.get("TYPE") \
-                            + List_db_dns_out.get("CLASS") + List_db_dns_out.get("TTL") \
-                            + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get("NS_DATA")
-                            r3 = re.compile(r'NS_DATA =(.*)#(.*)')
-                            sep3 = r3.search(fil.readline())
-                            List_db_dns_out["NS_DATA"] = str(str2hex(sep3.group(1)))[2:-1]+ "c014"
-                            Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
-                            List_db_dns_out_1["DATA"] = List_db_dns_out_1["DATA"] + List_db_dns_out.get("NAME") \
-                            + List_db_dns_out.get("TYPE") + List_db_dns_out.get("CLASS") + List_db_dns_out.get("TTL") \
-                            + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get("NS_DATA")
-                            r4 = re.compile(r'NS_DATA =(.*)#(.*)')
-                            sep4 = r4.search(fil.readline())
-                            List_db_dns_out["NS_DATA"] = str(str2hex(sep4.group(1)))[2:-1]+ "c014"
-                            Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
-                            List_db_dns_out_1["DATA"] = List_db_dns_out_1["DATA"] + List_db_dns_out.get("NAME") \
-                            + List_db_dns_out.get("TYPE") + List_db_dns_out.get("CLASS") + List_db_dns_out.get("TTL") \
-                            + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get("NS_DATA")
-                            List_db_dns_out["ANCOUNT"] = "0003"
-                            fin_end = 1
-                        elif sep1.group(1).startswith("4"):
-                            r2 = re.compile(r'NS_DATA =(.*)#(.*)')
-                            sep2 = r2.search(fil.readline())
-                            List_db_dns_out["NS_DATA"] = str(str2hex(sep2.group(1)))[2:-1]+ "c014"
-                            Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
-                            List_db_dns_out_1["DATA"] = List_db_dns_out.get("NAME") + List_db_dns_out.get("TYPE") \
-                            + List_db_dns_out.get("CLASS") + List_db_dns_out.get("TTL") \
-                            + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get("NS_DATA")
-                            r3 = re.compile(r'NS_DATA =(.*)#(.*)')
-                            sep3 = r3.search(fil.readline())
-                            List_db_dns_out["NS_DATA"] = str(str2hex(sep3.group(1)))[2:-1]+ "c014"
-                            Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
-                            List_db_dns_out_1["DATA"] = List_db_dns_out_1["DATA"] + List_db_dns_out.get("NAME") \
-                            + List_db_dns_out.get("TYPE") + List_db_dns_out.get("CLASS") + List_db_dns_out.get("TTL") \
-                            + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get("NS_DATA")
-                            r4 = re.compile(r'NS_DATA =(.*)#(.*)')
-                            sep4 = r4.search(fil.readline())
-                            List_db_dns_out["NS_DATA"] = str(str2hex(sep4.group(1)))[2:-1]+ "c014"
-                            Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
-                            List_db_dns_out_1["DATA"] = List_db_dns_out_1["DATA"] + List_db_dns_out.get("NAME") \
-                            + List_db_dns_out.get("TYPE") + List_db_dns_out.get("CLASS") + List_db_dns_out.get("TTL") \
-                            + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get("NS_DATA")
-                            r5 = re.compile(r'NS_DATA =(.*)#(.*)')
-                            sep5 = r5.search(fil.readline())
-                            List_db_dns_out["NS_DATA"] = str(str2hex(sep5.group(1)))[2:-1]+ "c014"
-                            Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
-                            List_db_dns_out_1["DATA"] = List_db_dns_out_1["DATA"] + List_db_dns_out.get("NAME") \
-                            + List_db_dns_out.get("TYPE") + List_db_dns_out.get("CLASS") + List_db_dns_out.get("TTL") \
-                            + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get("NS_DATA")
-                            List_db_dns_out["ANCOUNT"] = "0004"
-                            fin_end = 1
+                    if requst.NAME is None:
+                        pass
+                    else:
+                        NS_record ="*.dynhost.ml"
+                        if str(str2hex(sep.group(1)))[2:-1] == str(str2hex(NS_record))[2:-1] \
+                                or str(str2hex(sep.group(1)))[2:-1] == requst.NAME:
+                            r1 = re.compile(r'NS_count =(.*)#(.*)')
+                            sep1 = r1.search(fil.readline())
+                            if sep1.group(1).startswith("1"):
+                                r2 = re.compile(r'NS_DATA =(.*)#(.*)')
+                                sep2 = r2.search(fil.readline())
+                                List_db_dns_out["NS_DATA"] = str(str2hex(sep2.group(1)))[2:-1] + "00"
+                                Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
+                                List_db_dns_out_1["DATA"] = List_db_dns_out.get("NAME") + List_db_dns_out.get("TYPE") \
+                                                            + List_db_dns_out.get("CLASS") + List_db_dns_out.get("TTL") \
+                                                            + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get(
+                                    "NS_DATA")
+                                List_db_dns_out["ANCOUNT"] = "0001"
+                                fin_end = 1
+                            elif sep1.group(1).startswith("2"):
+                                r2 = re.compile(r'NS_DATA =(.*)#(.*)')
+                                sep2 = r2.search(fil.readline())
+                                List_db_dns_out["NS_DATA"] = str(str2hex(sep2.group(1)))[2:-1] + "00"
+                                #print(List_db_dns_out["NS_DATA"])
+                                Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
+                                List_db_dns_out_1["DATA"] = List_db_dns_out.get("NAME") + List_db_dns_out.get("TYPE") \
+                                                            + List_db_dns_out.get("CLASS") + List_db_dns_out.get("TTL") \
+                                                            + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get(
+                                    "NS_DATA")
+                                r3 = re.compile(r'NS_DATA =(.*)#(.*)')
+                                sep3 = r3.search(fil.readline())
+                                List_db_dns_out["NS_DATA"] = str(str2hex(sep3.group(1)))[2:-1] + "00"
+                                #print(List_db_dns_out["NS_DATA"])
+                                Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
+                                List_db_dns_out_1["DATA"] = List_db_dns_out_1["DATA"] + List_db_dns_out.get("NAME") \
+                                                            + List_db_dns_out.get("TYPE") + List_db_dns_out.get(
+                                    "CLASS") + List_db_dns_out.get("TTL") \
+                                                            + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get(
+                                    "NS_DATA")
+                                List_db_dns_out["ANCOUNT"] = "0002"
+                                fin_end = 1
+                            elif sep1.group(1).startswith("3"):
+                                r2 = re.compile(r'NS_DATA =(.*)#(.*)')
+                                sep2 = r2.search(fil.readline())
+                                List_db_dns_out["NS_DATA"] = str(str2hex(sep2.group(1)))[2:-1] + "00"
+                                Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
+                                List_db_dns_out_1["DATA"] = List_db_dns_out.get("NAME") + List_db_dns_out.get("TYPE") \
+                                                            + List_db_dns_out.get("CLASS") + List_db_dns_out.get("TTL") \
+                                                            + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get(
+                                    "NS_DATA")
+                                r3 = re.compile(r'NS_DATA =(.*)#(.*)')
+                                sep3 = r3.search(fil.readline())
+                                List_db_dns_out["NS_DATA"] = str(str2hex(sep3.group(1)))[2:-1] + "00"
+                                Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
+                                List_db_dns_out_1["DATA"] = List_db_dns_out_1["DATA"] + List_db_dns_out.get("NAME") \
+                                                            + List_db_dns_out.get("TYPE") + List_db_dns_out.get(
+                                    "CLASS") + List_db_dns_out.get("TTL") \
+                                                            + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get(
+                                    "NS_DATA")
+                                r4 = re.compile(r'NS_DATA =(.*)#(.*)')
+                                sep4 = r4.search(fil.readline())
+                                List_db_dns_out["NS_DATA"] = str(str2hex(sep4.group(1)))[2:-1] + "00"
+                                Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
+                                List_db_dns_out_1["DATA"] = List_db_dns_out_1["DATA"] + List_db_dns_out.get("NAME") \
+                                                            + List_db_dns_out.get("TYPE") + List_db_dns_out.get(
+                                    "CLASS") + List_db_dns_out.get("TTL") \
+                                                            + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get(
+                                    "NS_DATA")
+                                List_db_dns_out["ANCOUNT"] = "0003"
+                                fin_end = 1
+                            elif sep1.group(1).startswith("4"):
+                                r2 = re.compile(r'NS_DATA =(.*)#(.*)')
+                                sep2 = r2.search(fil.readline())
+                                List_db_dns_out["NS_DATA"] = str(str2hex(sep2.group(1)))[2:-1] + "00"
+                                Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
+                                List_db_dns_out_1["DATA"] = List_db_dns_out.get("NAME") + List_db_dns_out.get("TYPE") \
+                                                            + List_db_dns_out.get("CLASS") + List_db_dns_out.get("TTL") \
+                                                            + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get(
+                                    "NS_DATA")
+                                r3 = re.compile(r'NS_DATA =(.*)#(.*)')
+                                sep3 = r3.search(fil.readline())
+                                List_db_dns_out["NS_DATA"] = str(str2hex(sep3.group(1)))[2:-1] + "00"
+                                Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
+                                List_db_dns_out_1["DATA"] = List_db_dns_out_1["DATA"] + List_db_dns_out.get("NAME") \
+                                                            + List_db_dns_out.get("TYPE") + List_db_dns_out.get(
+                                    "CLASS") + List_db_dns_out.get("TTL") \
+                                                            + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get(
+                                    "NS_DATA")
+                                r4 = re.compile(r'NS_DATA =(.*)#(.*)')
+                                sep4 = r4.search(fil.readline())
+                                List_db_dns_out["NS_DATA"] = str(str2hex(sep4.group(1)))[2:-1] + "00"
+                                Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
+                                List_db_dns_out_1["DATA"] = List_db_dns_out_1["DATA"] + List_db_dns_out.get("NAME") \
+                                                            + List_db_dns_out.get("TYPE") + List_db_dns_out.get(
+                                    "CLASS") + List_db_dns_out.get("TTL") \
+                                                            + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get(
+                                    "NS_DATA")
+                                r5 = re.compile(r'NS_DATA =(.*)#(.*)')
+                                sep5 = r5.search(fil.readline())
+                                List_db_dns_out["NS_DATA"] = str(str2hex(sep5.group(1)))[2:-1] + "00"
+                                Rdlend(List_db_dns_out["NS_DATA"], List_db_dns_out_1)
+                                List_db_dns_out_1["DATA"] = List_db_dns_out_1["DATA"] + List_db_dns_out.get("NAME") \
+                                                            + List_db_dns_out.get("TYPE") + List_db_dns_out.get(
+                                    "CLASS") + List_db_dns_out.get("TTL") \
+                                                            + List_db_dns_out_1.get("RDLENGTH") + List_db_dns_out.get(
+                                    "NS_DATA")
+                                List_db_dns_out["ANCOUNT"] = "0004"
+                                fin_end = 1
+                            else:
+                                pass
                         else:
                             pass
-                    else :
-                        pass
+
                 else:
                     pass
 
