@@ -1,8 +1,8 @@
 # -------------------------------------------------------------------
-# v02.2020
+# v03.2020
 # records- A,TXT,SOA,NS
 # dir(Records/NS.txt SOA.txt TXT.txt)
-# dynhost.ml (DNS area)
+# dynhost.ml (DNS area+host_dns)
 # syn DNS_DB
 # -------------------------------------------------------------------
 import binascii
@@ -14,11 +14,16 @@ import time
 from config import MINIMUM
 import json
 import socket
-from config import host_DNS2, port_DNS
+from config import host_DNS2, port_DNS, host_name
 
 
 def str2hex(s):
     return binascii.hexlify(bytes(str.encode(s)))
+
+
+def Qname(name):
+    name_hex = str2hex(name).decode('utf-8')
+    return name_hex
 
 
 def hex2str(h):
@@ -62,29 +67,23 @@ def Rdlend(List_db_dns_out, List_db_dns_out_1):
     return List_db_dns_out_1["RDLENGTH"]
 
 
-def UPDATE_DYNDNS_start(inses, lock):
+def UPDATE_DYNDNS_start(inses):
 
     session = inses
-    lock.acquire()
     update = {}
-
+    namba = 0
+    work = session.query(DynDNS).filter(DynDNS.STATUS == 'USER').count()
     while True:
-        work = session.query(DynDNS).filter(DynDNS.STATUS == 'USER').count()
-        if work >= 1:
-            menu = session.query(DynDNS).filter(DynDNS.STATUS == 'USER').first()
-            work_no = session.query(DynDNS).filter(DynDNS.dyndns_id == menu.dyndns_id)
-            update[menu.NAME] = menu.USER, menu.RDATA, menu.Time_stop  #
-            work_no.update({DynDNS.STATUS: ("SYN")})
-            session.commit()
+        if work - 1 >= namba:
+            menu = session.query(DynDNS).filter(DynDNS.STATUS == 'USER').all()
+            update[menu[namba].NAME] = menu[namba].USER, menu[namba].RDATA, menu[namba].Time_stop
+            namba = namba + 1
         else:
             break
 
-    sys = session.query(DynDNS).filter(DynDNS.STATUS == 'SYN')
-    sys.update({DynDNS.STATUS: ("USER")})
-    session.commit()
     session.close()
-    lock.release()
     return update
+
 
 
 def UPDATE_DYNDNS_finish(start, inses, lock):
@@ -189,8 +188,8 @@ def answer_no_name(List_db_dns_out, List_db_dns_out_1):
     List_db_dns_out["TTL"] = MINIMUM
     NAME_err = "err.dynhost.ml"
 
-    if os.path.isfile(os.path.abspath('.\\Records\\SOA.txt')):
-        infile = open(os.path.abspath('.\\Records\\SOA.txt'), 'r')
+    if os.path.isfile(os.path.abspath('./Records/SOA.txt')):
+        infile = open(os.path.abspath('./Records/SOA.txt'), 'r')
         with infile as fil:
             for line in fil:
                 if line.startswith('SOA record '):
@@ -271,6 +270,39 @@ def answer_A_name(requst, List_db_dns_out):
 
     return message_db_dns_out
 
+def answer_A_host_name(inses,requst, List_db_dns_out):  # yes host_name
+
+    Header_1 = List_db_dns_out.get("QR") + List_db_dns_out.get("OPCODE") + List_db_dns_out.get(
+        "AA") + List_db_dns_out.get("TC") + List_db_dns_out.get("RD")
+    Header_2 = List_db_dns_out.get("RA") + List_db_dns_out.get("Z") + List_db_dns_out.get("RCODE")
+    Header_1_1 = Header_1[0:4]
+    Header_1_2 = Header_1[4:8]
+    Header_2_1 = Header_2[0:4]
+    Header_2_2 = Header_2[4:8]
+    List_db_dns_out["Header"] = str(int((Header_1_1), 2)) + str(int((Header_1_2), 2)) \
+                                + str(int((Header_2_1), 2)) + str(int((Header_2_2), 2))
+    session = inses
+    namba = 0
+    List_db_dns_out["host_name"] = ""
+    work_host = session.query(DynDNS).filter(DynDNS.NAME == Qname(host_name), DynDNS.STATUS == 'DynDNS').count()
+    List_db_dns_out["ANCOUNT"] = "000" + str(work_host)
+    while True:
+        if work_host - 1 >= namba:
+            host = session.query(DynDNS).filter(DynDNS.STATUS == 'DynDNS', DynDNS.USER == 'DNS').all()
+            List_db_dns_out["host_name"] = List_db_dns_out["host_name"] + "C00C" + requst.TYPE + requst.CLASS \
+            + host[namba].TTL + "0004" + host[namba].RDATA
+            namba = namba + 1
+        else:
+            break
+
+
+    message_db_dns_out = List_db_dns_out.get("ID") + List_db_dns_out.get("Header") + List_db_dns_out.get("QDCOUNT") \
+                         + List_db_dns_out.get("ANCOUNT") + List_db_dns_out.get("NSCOUNT") \
+                         + List_db_dns_out.get("ARCOUNT") + List_db_dns_out.get("QNAME") + List_db_dns_out.get("QTYPE") \
+                         + List_db_dns_out.get("QCLASS") + List_db_dns_out["host_name"]
+
+    return message_db_dns_out
+
 
 def answer_SOA(requst, List_db_dns_out, List_db_dns_out_1):
     # List_db_dns_out["RCODE"] = "0000"  # Code answer(0,1,2,3,4,5,6-15)
@@ -291,8 +323,8 @@ def answer_SOA(requst, List_db_dns_out, List_db_dns_out_1):
     List_db_dns_out["CLASS"] = requst.CLASS
     List_db_dns_out["TTL"] = requst.TTL
     soa = 0
-    if os.path.isfile(os.path.abspath('.\\Records\\SOA.txt')):
-        infile = open(os.path.abspath('.\\Records\\SOA.txt'), 'r')
+    if os.path.isfile(os.path.abspath('./Records/SOA.txt')):
+        infile = open(os.path.abspath('./Records/SOA.txt'), 'r')
         with infile as fil:
             for line in fil:
                 soa_t = "default"
@@ -402,8 +434,8 @@ def answer_TXT(requst, List_db_dns_out, List_db_dns_out_1):
     List_db_dns_out["CLASS"] = requst.CLASS
     List_db_dns_out["TTL"] = requst.TTL
     fin_end = 0
-    if os.path.isfile(os.path.abspath('.\\Records\\TXT.txt')):
-        infile = open(os.path.abspath('.\\Records\\TXT.txt'), 'r')
+    if os.path.isfile(os.path.abspath('./Records/TXT.txt')):
+        infile = open(os.path.abspath('./Records/TXT.txt'), 'r')
         with infile as fil:
             for line in fil:
                 if line.startswith('TXT_record'):
@@ -553,8 +585,8 @@ def answer_NS(requst, List_db_dns_out, List_db_dns_out_1):
     List_db_dns_out["CLASS"] = requst.CLASS
     List_db_dns_out["TTL"] = requst.TTL
     fin_end = 0
-    if os.path.isfile(os.path.abspath('.\\Records\\NS.txt')):
-        infile = open(os.path.abspath('.\\Records\\NS.txt'), 'r')
+    if os.path.isfile(os.path.abspath('./Records/NS.txt')):
+        infile = open(os.path.abspath('./Records/NS.txt'), 'r')
         with infile as fil:
             for line in fil:
                 if line.startswith('NS record'):
@@ -726,7 +758,7 @@ def DB_DNS_in(in_message, Session, lock):
 
     # ("Syn_dns_out")
     if List_db_dns_in["ID"] == "F5F5" or List_db_dns_in["ID"] == "f5f5" and in_message[4:12] == "01000001":
-        data_up = binascii.hexlify(bytes(str.encode(json.dumps(UPDATE_DYNDNS_start(session, lock)))))
+        data_up = binascii.hexlify(bytes(str.encode(json.dumps(UPDATE_DYNDNS_start(session)))))
         len_up = len(data_up)
         n = (len_up / 1000) + 1  # 1000 hex byt len udp data
         i = 1
@@ -849,21 +881,26 @@ def DB_DNS_in(in_message, Session, lock):
 
     requst = session.query(DynDNS).filter(DynDNS.NAME == qname).first()
     if List_db_dns_in["QTYPE"] == "0001":  # A format
-        if requst is not None:
-            if requst.Time_stop == "millenium":
-                List_db_dns_out["RCODE"] = "0000"  # Code answer(0,1,2,3,4,5,6-15) good
-                message_db_dns_out_f = answer_A_name(requst, List_db_dns_out)  # yes A
-            else:
-                if float(requst.Time_stop) >= time.time():
+        if qname == Qname(host_name):
+            List_db_dns_out["RCODE"] = "0000"  # Code answer(0,1,2,3,4,5,6-15)  good
+            message_db_dns_out_f = answer_A_host_name(session, requst, List_db_dns_out)  # yes host_name
+        else :
+            if requst is not None:
+                if requst.Time_stop == "millenium":
                     List_db_dns_out["RCODE"] = "0000"  # Code answer(0,1,2,3,4,5,6-15) good
                     message_db_dns_out_f = answer_A_name(requst, List_db_dns_out)  # yes A
                 else:
-                    List_db_dns_out["RCODE"] = "0000"  # Code answer(0,1,2,3,4,5,6-15)
-                    message_db_dns_out_f = answer_no_name_millenium(List_db_dns_out)  # no A
+                    if float(requst.Time_stop) >= time.time():
+                        List_db_dns_out["RCODE"] = "0000"  # Code answer(0,1,2,3,4,5,6-15) good
+                        message_db_dns_out_f = answer_A_name(requst, List_db_dns_out)  # yes A
+                    else:
+                        List_db_dns_out["RCODE"] = "0000"  # Code answer(0,1,2,3,4,5,6-15)
+                        message_db_dns_out_f = answer_no_name_millenium(List_db_dns_out)  # no A
 
-        else:
-            List_db_dns_out["RCODE"] = "0011"  # Code answer(0,1,2,3,4,5,6-15)  NXDomain (3)
-            message_db_dns_out_f = answer_no_name(List_db_dns_out, List_db_dns_out_1)  # no A
+            else:
+                List_db_dns_out["RCODE"] = "0011"  # Code answer(0,1,2,3,4,5,6-15)  NXDomain (3)
+                message_db_dns_out_f = answer_no_name(List_db_dns_out, List_db_dns_out_1)  # no A
+
 
 
     elif List_db_dns_in["QTYPE"] == "0110":  # SOA format
